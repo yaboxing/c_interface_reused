@@ -1,86 +1,90 @@
 #include "stack.h"
+#include "../assert/assert.h"
 #include "../mem/mem.h"
+#include <stdio.h>
 
-#define T	Stack_T
+#define T   Stack_T
 
-struct T{
-	int count;
-	struct elem{
-		void* x;
-		struct elem* link;
-	}*head;
+struct T {
+    int count;
+    struct elem {
+        void* x;
+        struct elem* link;
+    }* head;
 };
 
 //#define NEW(x) (x)=malloc(sizeof(struct T))
 
 T Stack_new(void)
 {
-	T stk;
+    T stk;
 
-	NEW(stk);
-	stk->count = 0;
-	stk->head = NULL;
+    NEW(stk);
+    stk->count = 0;
+    stk->head = NULL;
 
-	return stk;
+    return stk;
 }
 
 int Stack_empty(T stk)
 {
-	assert(stk); // assert(e) 确保表达式 e 为真
+    assert(stk); // assert(e) 确保表达式 e 为真
 
-	return stk->count == 0;
+    return stk->count == 0;
 
 }
 
 void Stack_push(T stk, void* x)
 {
-	struct elem* t;
-	
-	assert(stk);
-	NEW(t);
-	t->x = x;
-	t->link = stk->head;
-	stk->head = t;
-	stk->count++;
+    struct elem* t;
+
+    assert(stk);
+    NEW(t);
+    t->x = x;
+    t->link = stk->head;
+    stk->head = t;
+    stk->count++;
 }
 
 void* Stack_pop(T stk)
 {
-	void* x;
-	struct elem* t;
+    void* x;
+    struct elem* t;
 
-	assert(stk);
-	assert(stk->count > 0);
+    assert(stk);
+    assert(stk->count > 0);
 
-	t = stk->head;
-	stk->head = t->link;
-	stk->count--;
-	x = t->x;
-	FREE(t);
-	t = NULL;
-	return x;
+    t = stk->head;
+    stk->head = t->link;
+    stk->count--;
+    x = t->x;
+    FREE(t);
+    t = NULL;
+    return x;
 }
 
 void Stack_free(T* stk)
 {
-	struct elem* t;
-	struct elem* u;
+    struct elem* t;
+    struct elem* u;
 
-	assert(stk && *stk);
+    assert(stk && *stk);
 
-	for(t=(*stk)->head; t; t=u){
-		u = t->link;
-		FREE(t);
-		t = NULL;
-	}
+    for (t = (*stk)->head; t; t = u) {
+        u = t->link;
+        FREE(t);
+        t = NULL;
+    }
 
-	FREE(*stk);
+    FREE(*stk);
 }
 
+/*
 int main(int argc, char* argv[])
 {
-	Stack_T names = Stack_new();
+    Stack_T names = Stack_new();
 
-	Stack_free(&names);
-	return 0;
+    Stack_free(&names);
+    return 0;
 }
+*/

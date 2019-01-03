@@ -2,7 +2,7 @@
 #define __RING_H__
 
 #define T Ring_T
-typedef struct T *T;
+typedef struct T* T;
 
 extern T Ring_new(void);
 extern T Ring_ring(void* x, ...);
