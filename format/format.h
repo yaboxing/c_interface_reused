@@ -5,8 +5,7 @@
 #include "../except/except.h"
 
 #define T Fmt_T
-typedef void (*T)(int code, va_list* app, int put(int c, void* cl),
-				  unsigned char flags[256], int width, int precision);
+typedef void (*T)(int code, va_list* app, int put(int c, void* cl), void* cl, unsigned char flags[256], int width, int precision);
 
 extern char* Fmt_flags;
 extern const Except_T Fmt_Overflow;
@@ -21,8 +20,8 @@ extern char* Fmt_string(const char* fmt, ...);
 extern char* Fmt_vstring(const char* fmt, va_list ap);
 extern T Fmt_register(int code, T newcvt);
 extern void Fmt_putd(const char* str, int len, int put(int c, void* cl), void* cl,
-						unsigned char flags[256], int width, int precision);
-extern void Fmt_puts(const char* str, int len, int put(int c, void* cl), 	void* cl, 
-						unsigned char flags[256], int width, int precision);
+                     unsigned char flags[], int width, int precision);
+extern void Fmt_puts(const char* str, int len, int put(int c, void* cl),    void* cl,
+                     unsigned char flags[], int width, int precision);
 #undef T
 #endif

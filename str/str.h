@@ -23,6 +23,6 @@ extern int Str_many(const char* s, int i, int j, const char* set);
 extern int Str_rmany(const char* s, int i, int j, const char* set);
 extern int Str_math(const char* s, int i, int j, const char* str);
 extern int Str_rmath(const char* s, int i, int j, const char* str);
-extern int Str_fmt(int code, va_list* app, int put(int c, void* cl), void* cl, unsigned char flags[], int width, int precision);
+extern void Str_fmt(int code, va_list* app, int put(int c, void* cl), void* cl, unsigned char flags[], int width, int precision);
 
 #endif

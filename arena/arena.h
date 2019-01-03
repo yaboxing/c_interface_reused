@@ -4,10 +4,10 @@
 #include "../except/except.h"
 
 #define T Arena_T
-typedef struct T *T;
+typedef struct T* T;
 
-extern const Except_T	Arena_NewFailed;
-extern const Except_T	Arena_Failed;
+extern const Except_T   Arena_NewFailed;
+extern const Except_T   Arena_Failed;
 
 extern T Arena_new(void);
 extern void Arena_dispose(T* ap);

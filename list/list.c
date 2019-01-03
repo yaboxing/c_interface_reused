@@ -1,149 +1,156 @@
 #include "list.h"
+#include "../assert/assert.h"
 #include "../mem/mem.h"
+#include <stdio.h>
+#include <stdarg.h>
 
+#define T List_T
+
+/*
 void mkatom(void** x, void* cl)
 {
-	char** str = (char**)x;
-	FILE* fp = cl;
+    char** str = (char**)x;
+    FILE* fp = cl;
 
-	*str = Atom_string(*str);
-	fprintf(fp, "%s\n", *str);
+    *str = Atom_string(*str);
+    fprintf(fp, "%s\n", *str);
 }
 
 void applyFree(void** p, void* cl)
 {
-	FREE(*p);
+    FREE(*p);
 }
+*/
 
-T List_list(void * x, ...)
+T List_list(void* x, ...)
 {
-	va_list ap;
-	T list;
-	T* p = &list;
+    va_list ap;
+    T list;
+    T* p = &list;
 
-	va_start(ap, x);
-	for(; x; x=va_arg(ap, void*)){
-		NEW(*p);
-		(*p)->first = x;
-		p = &(*p)->rest;
-	}
-	*p = NULL;
-	va_end(ap);
+    va_start(ap, x);
+    for (; x; x = va_arg(ap, void*)) {
+        NEW(*p);
+        (*p)->first = x;
+        p = &(*p)->rest;
+    }
+    *p = NULL;
+    va_end(ap);
 
-	return list;
+    return list;
 }
 
 T List_append(T list, T tail)
 {
-	T* p = &list;
+    T* p = &list;
 
-	while(*p){
-		p = &(*p)->rest;
-	}
+    while (*p) {
+        p = &(*p)->rest;
+    }
 
-	*p = tail;
+    *p = tail;
 
-	return list;
+    return list;
 }
 
 
 T List_copy(T list)
 {
-	T head;
-	T* p = &head;
+    T head;
+    T* p = &head;
 
-	for(; list; list=list->rest){
-		NEW(*p);
-		(*p)->first = list->first;
-		p = &(*p)->rest;
-	}
-	*p = NULL;
+    for (; list; list = list->rest) {
+        NEW(*p);
+        (*p)->first = list->first;
+        p = &(*p)->rest;
+    }
+    *p = NULL;
 
-	return head;
+    return head;
 }
 
-T List_push(T list, void * x)
+T List_push(T list, void* x)
 {
-	T p;
+    T p;
 
-	NEW(p);
-	p->first = x;
-	p->rest = list;
-	return p;
+    NEW(p);
+    p->first = x;
+    p->rest = list;
+    return p;
 }
 
 T List_pop(T list, void * * x)
 {
-	if(list){
-		T head = list->rest;
-		if(x){
-			*x = list->first;
-		}
-		FREE(list);
+    if (list) {
+        T head = list->rest;
+        if (x) {
+            *x = list->first;
+        }
+        FREE(list);
 
-		return head;
-	}
+        return head;
+    }
 
-	return list;
+    return list;
 }
 
 T List_reverse(T list)
 {
-	T head = NULL;
-	T next;
+    T head = NULL;
+    T next;
 
-	for(; list; list=next){
-		next = list->rest;
-		list->rest = head;
-		head = list;
-	}
+    for (; list; list = next) {
+        next = list->rest;
+        list->rest = head;
+        head = list;
+    }
 
-	return head;
+    return head;
 }
 
 
 int List_length(T list)
 {
-	int n;
+    int n;
 
-	for(n=0; list; list=list->rest){
-		n++;
-	}
+    for (n = 0; list; list = list->rest) {
+        n++;
+    }
 
-	return n;
+    return n;
 }
 
-void List_free(T * list)
+void List_free(T* list)
 {
-	T* next;
+    T next;
 
-	for(; *list; *list=next;){
-		next = (*list)->rest;
-		FREE(*list);
-	}
+    for (; *list; *list = next) {
+        next = (*list)->rest;
+        FREE(*list);
+    }
 }
 
-void List_map(T list, void apply(void * * x, void * cl), void * cl)
+void List_map(T list, void apply(void * * x, void* cl), void* cl)
 {
-	assert(apply);
+    assert(apply);
 
-	for(; list; list=list->rest){
-		apply(&list->first, cl);
-	}
+    for (; list; list = list->rest) {
+        apply(&list->first, cl);
+    }
 }
 
-void** List_toArray(T list, void * end)
+void** List_toArray(T list, void* end)
 {
-	int i;
-	int n = List_length(list);
-	void** array = ALLOC((n+1) * sizeof(*array));
+    int i;
+    int n = List_length(list);
+    void** array = ALLOC((n + 1) * sizeof(*array));
 
-	for(i=0; i<n; i++){
-		array[i] = list->first;
-		list = list->rest;
-	}
+    for (i = 0; i < n; i++) {
+        array[i] = list->first;
+        list = list->rest;
+    }
 
-	array[i] = end;
+    array[i] = end;
 
-	return array;
+    return array;
 }

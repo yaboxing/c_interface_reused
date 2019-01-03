@@ -1,36 +1,37 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "../assert/assert.h"
 #include "../except/except.h"
 #include "arena.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define THRESHOLD 10
 
 #define T Arena_T
 
-const Except_T	Arena_NewFailed = {"Arena Creation Failed"};
-const Except_T	Arena_Failed = {"Arena Allocation Failed"};
+const Except_T  Arena_NewFailed = {"Arena Creation Failed"};
+const Except_T  Arena_Failed = {"Arena Allocation Failed"};
 
 struct T {
-	T prev;
-	char* avail;
-	char* limit;
+    T prev;
+    char* avail;
+    char* limit;
 };
 
-union align{
-	int i;
-	long l;
-	long* lp;
-	void* p;
-	void (*fp)(void);
-	float f;
-	double d;
-	long double ld;
+union align {
+    int i;
+    long l;
+    long* lp;
+    void* p;
+    void (*fp)(void);
+    float f;
+    double d;
+    long double ld;
 };
 
-union header{
-	struct T b;
-	union align a;
+union header {
+    struct T b;
+    union align a;
 };
 
 static T freechunks;
@@ -38,97 +39,97 @@ static int nfree;
 
 T Arena_new(void)
 {
-	T arena = malloc(sizeof(*arena));
-	if(arena == NULL){
-		RAISE(Arena_NewFailed);
-	}
+    T arena = malloc(sizeof(*arena));
+    if (arena == NULL) {
+        RAISE(Arena_NewFailed);
+    }
 
-	arena->prev = NULL;
-	arena->limit = arena->avail = NULL;
+    arena->prev = NULL;
+    arena->limit = arena->avail = NULL;
 
-	return arena;
+    return arena;
 }
 
 void Arena_dispose(T* ap)
 {
-	assert(ap && *ap);
+    assert(ap && *ap);
 
-	Arena_free(*ap);
-	free(*ap);
-	*ap = NULL;
+    Arena_free(*ap);
+    free(*ap);
+    *ap = NULL;
 }
 
 void* Arena_alloc(T arena, long nbytes, const char* file, int line)
 {
-	assert(arena);
-	assert(nbytes>0);
+    assert(arena);
+    assert(nbytes > 0);
 
-	// round nbytes up to an alignment boundary
-	nbytes = ( (nbytes+sizeof(union align)-1)/
-				(sizeof(union align)) ) * (sizeof(union align));
+    // round nbytes up to an alignment boundary
+    nbytes = ((nbytes + sizeof(union align) - 1) /
+              (sizeof(union align))) * (sizeof(union align));
 
-	while(nbytes > arena->limit-arena->avail){
-		// get a new chunk
-		T p;
-		char* limit;
-		// p = a new chunk
-		if((p=freechunks) != NULL){
-			freechunks = freechunks->prev;
-			nfree--;
-			limit = p->limit;
-		} else {
-			long m = sizeof(union header) + nbytes + 10*1024;
-			p = malloc(m);
-			if(p == NULL){
-				if(file == NULL){
-					RAISE(Arena_Failed);
-				} else {
-					Except_raise(&Arena_Failed, file, line);
-				}
-			}
-			limit = (char*)p + m;
-		}
-		
-		*p = *arena;
-		arena->avali = (char*)((union header*)p + 1);
-		arena->limit = limit;
-		arena->prev  = p;
-	}
-	arena->avail += nbytes;
+    while (nbytes > arena->limit - arena->avail) {
+        // get a new chunk
+        T p;
+        char* limit;
+        // p = a new chunk
+        if ((p = freechunks) != NULL) {
+            freechunks = freechunks->prev;
+            nfree--;
+            limit = p->limit;
+        } else {
+            long m = sizeof(union header) + nbytes + 10 * 1024;
+            p = malloc(m);
+            if (p == NULL) {
+                if (file == NULL) {
+                    RAISE(Arena_Failed);
+                } else {
+                    Except_raise(&Arena_Failed, file, line);
+                }
+            }
+            limit = (char*)p + m;
+        }
 
-	return arena->avail - nbytes;
+        *p = *arena;
+        arena->avail = (char*)((union header*)p + 1);
+        arena->limit = limit;
+        arena->prev  = p;
+    }
+    arena->avail += nbytes;
+
+    return arena->avail - nbytes;
 }
 
 void* Arena_calloc(T arena, long count, long nbytes, const char* file, int line)
 {
-	void* p;
-	assert(count>0);
+    void* p;
+    assert(count > 0);
 
-	p = Arena_alloc(arena, count*nbytes, file, line);
-	memset(p, '\0', count*nbytes);
+    p = Arena_alloc(arena, count * nbytes, file, line);
+    memset(p, '\0', count * nbytes);
 
-	return p;
+    return p;
 }
 
 void Arena_free(T arena)
 {
-	assert(arena);
+    assert(arena);
 
-	while(arena->prev){
-		struct T tmp = *arena->prev;
-		// free the chunk described by arena
-		if(nfree < THRESHOLD){
-			arena->prev->prev = freechunks;
-			freechunks = arena->prev;
-			nfree++;
-			freechunks->limit = arena->limit;
-		} else {
-			free(arena->prev);
-		}
-		*arena = tmp;
-	}
+    while (arena->prev) {
+        struct T tmp = *arena->prev;
+        // free the chunk described by arena
+        if (nfree < THRESHOLD) {
+            arena->prev->prev = freechunks;
+            freechunks = arena->prev;
+            nfree++;
+            freechunks->limit = arena->limit;
+        } else {
+            free(arena->prev);
+        }
+        *arena = tmp;
+    }
 
-	assert(arena->limit==NULL);
-	assert(arena->avail==NULL);
+    assert(arena->limit == NULL);
+    assert(arena->avail == NULL);
 }
 

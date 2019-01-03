@@ -2,8 +2,16 @@
 #define __ARRAY_H__
 
 #define T Array_T
-typedef struct T *T;
 
+struct T {
+	int length;
+	int size;
+	char* array;
+};
+
+typedef struct T* T;
+
+extern void ArrayRep_init(T array, int length, int size, void * ary);
 extern T Array_new(int length, int size);
 extern void Array_free(T* array);
 extern int Array_length(T array);
