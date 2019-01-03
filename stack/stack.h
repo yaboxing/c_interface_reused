@@ -1,8 +1,8 @@
 #ifndef __STACK_H__
 #define __STACK_H__
 
-#define T	Stack_T
-typedef struct Stack_T *Stack_T;
+#define T   Stack_T
+typedef struct Stack_T* Stack_T;
 
 extern T Stack_new(void);
 extern int Stack_empty(T stk);

@@ -6,60 +6,60 @@
 
 #define T Chan_T
 struct T {
-	const void* ptr;
-	int* size;
-	Sem_T send;
-	Sem_T recv;
-	Sem_T sync;
+    const void* ptr;
+    int* size;
+    Sem_T send;
+    Sem_T recv;
+    Sem_T sync;
 };
 
 T Chan_new(void)
 {
- 	T c;
+    T c;
 
-	NEW(C);
-	Sem_init(&c->send, 1);
-	Sem_init(&c->recv, 0);
-	Sem_init(&c->sync, 0);
+    NEW(C);
+    Sem_init(&c->send, 1);
+    Sem_init(&c->recv, 0);
+    Sem_init(&c->sync, 0);
 
-	return c;
+    return c;
 }
 
 int Chan_send(T c, const void* ptr, int size)
 {
-	assert(c);
-	assert(ptr);
-	assert(size >= 0);
+    assert(c);
+    assert(ptr);
+    assert(size >= 0);
 
-	Sem_wait(&c->send);
-	c->ptr = ptr;
-	c->size = &size;
-	Sem_signal(&c->recv);
-	Sem_wait(&c->sync);
+    Sem_wait(&c->send);
+    c->ptr = ptr;
+    c->size = &size;
+    Sem_signal(&c->recv);
+    Sem_wait(&c->sync);
 
-	return size;
+    return size;
 }
 
 int Chan_receive(T c, void* ptr, int size)
 {
-	int n;
+    int n;
 
-	assert(c);
-	assert(ptr);
-	assert(size >= 0);
+    assert(c);
+    assert(ptr);
+    assert(size >= 0);
 
-	Sem_wait(&c->recv);
-	n = *c->size;
-	if(size < n){
-		n = size;
-	}
-	*c->size = n;
-	if(n > 0){
-		memcpy(ptr, c->ptr, n);
-	}
+    Sem_wait(&c->recv);
+    n = *c->size;
+    if (size < n) {
+        n = size;
+    }
+    *c->size = n;
+    if (n > 0) {
+        memcpy(ptr, c->ptr, n);
+    }
 
-	Sem_signal(&c->sync);
-	Sem_signal(&c->send);
+    Sem_signal(&c->sync);
+    Sem_signal(&c->send);
 
-	return n;
+    return n;
 }

@@ -3,7 +3,7 @@
 #include <stdarg.h>
 
 #define T AP_T
-typedef struct T *T;
+typedef struct T* T;
 
 extern T AP_new(long int n);
 extern T AP_fromstr(const char* str, int base, char** end);
@@ -22,7 +22,7 @@ extern T AP_addi(T x, long int y);
 extern T AP_subi(T x, long int y);
 extern T AP_muli(T x, long int y);
 extern T AP_divi(T x, long int y);
-extern T AP_modi(T x, long int y);
+extern long int AP_modi(T x, long int y);
 extern T AP_lshift(T x, int s);
 extern T AP_rshift(T x, int s);
 extern int AP_cmp(T x, T y);

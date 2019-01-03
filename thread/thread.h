@@ -3,7 +3,7 @@
 #include "../except/except.h"
 
 #define T Thread_T
-typedef struct T *T;
+typedef struct T* T;
 
 extern Except_T Thread_Faild;
 extern Except_T Thread_Alerted;
